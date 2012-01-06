@@ -1,0 +1,2 @@
+ulimit -c unlimited
+./ovsTools/ovs-controller ptcp:6633 -v --wildcard --max-idle=permanent --unixctl=junos_socket

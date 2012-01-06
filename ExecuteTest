@@ -1,0 +1,46 @@
+#!/usr/bin/env python2.6
+
+import sys, os, signal
+
+sys.path.append('testCases')
+sys.path.append('pythonSources')
+
+import OFTestTool, ResourcesMonitor, ConfigurationReader, RandomFlowGenerator
+
+
+def main():
+
+    
+    pid = os.fork()
+    if pid: #parrent
+        try:
+            inputParameter = sys.argv[1]
+            testCaseToRun = inputParameter.rsplit('/',1)[1].rsplit('.',1)[0]
+    
+            print "Running test case: " + testCaseToRun
+            module = __import__(testCaseToRun)
+            testCaseRef = getattr(module, 'TestCase')
+            testCaseInstance = testCaseRef()
+            testCaseInstance.run()
+            os.kill(0, signal.SIGUSR1)
+            os.waitpid(pid, 0)
+        
+        except IndexError:
+            print "You must specify a test case file as a parameter"
+            os.kill(0, signal.SIGUSR1)
+            os.waitpid(pid, 0)
+        except ImportError:
+            print "No existing test case passed as a parameter"
+            os.kill(0, signal.SIGUSR1)
+            os.waitpid(pid, 0)
+
+    else:
+        resourcesMonitor = ResourcesMonitor.ResourcesMonitor()
+
+#    except:
+#        print "Other error - please check the correctness of test case implementation"
+#        os.kill(0, signal.SIGUSR1)
+#        os.waitpid(pid, 0)
+
+if __name__ == '__main__': main()
+
